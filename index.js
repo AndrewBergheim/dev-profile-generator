@@ -187,35 +187,35 @@ let generateHTML = function(color, responseData) {
               </div>
             </div>
             <div class = "container">  
-            <h6 style = "text-align:center">${responseData.data.bio}</h6>
-            <div class = "row">
-              <div class = "col">
-                <div class = "card">
-                  <h1>Public Repositories</h1>
-                  <h5>${responseData.data.public_repos}</h5>
+              <h6 style = "text-align:center">${responseData.data.bio}</h6>
+              <div class = "row">
+                <div class = "col">
+                  <div class = "card">
+                    <h1>Public Repositories</h1>
+                    <h5>${responseData.data.public_repos}</h5>
+                  </div>
+                </div>
+                <div class = "col">
+                  <div class = "card">
+                    <h1>Followers</h1>
+                    <h5>${responseData.data.followers}</h5>
+                  </div>
                 </div>
               </div>
-              <div class = "col">
-                <div class = "card">
-                  <h1>Followers</h1>
-                  <h5>${responseData.data.followers}</h5>
+              <div class = "row">
+                <div class = "col">
+                  <div class = "card">
+                    <h1>GitHub Stars</h1>
+                    <h5>${responseData.data.public_gists}</h5>
+                  </div>
+                </div>
+                <div class = "col">
+                  <div class = "card">
+                    <h1>Following</h1>
+                    <h5>${responseData.data.following}</h5>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class = "row">
-              <div class = "col">
-                <div class = "card">
-                  <h1>GitHub Stars</h1>
-                  <h5>${responseData.data.public_gists}</h5>
-                </div>
-              </div>
-              <div class = "col">
-                <div class = "card">
-                  <h1>Following</h1>
-                  <h5>${responseData.data.following}</h5>
-                </div>
-              </div>
-            </div>
             </div> 
           </div>
         </main>
@@ -243,11 +243,11 @@ let writeFunction =  function writeToFile(fileName, data) {
   })
 }
 
-console.log("begin")
+//console.log("begin")
 
 const questions = [
   {
-    type:"checkbox",
+    type:"list",
     name:"color",
     message:"Which of these colors is your favorite?",
     choices:["green","blue","pink","red"]
@@ -283,7 +283,7 @@ let inquireFunction = function(){
           //console.log(response)
           responseData = response;
           newHTML = generateHTML(color,response)
-          console.log(newHTML)
+          //console.log(newHTML)
           writeFunction("resume.html",newHTML)
           }
         )
