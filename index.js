@@ -107,6 +107,7 @@ let generateHTML = function(color, responseData) {
           border-radius: 50%;
           object-fit: cover;
           margin-top: -75px;
+          margin-bottom: 10px;
           border: 6px solid ${colors[color].photoBorderColor};
           box-shadow: rgba(0, 0, 0, 0.3) 4px 1px 20px 4px;
           }
@@ -174,48 +175,51 @@ let generateHTML = function(color, responseData) {
       </style>
       <body>
         <main>
-          <!--Header with photo-->
-          <div class = "photo-header">
-            <img class = "photo-header" src = ${responseData.data.avatar_url}>
-            <h1>${responseData.data.name}</h1>
-            <div class = "links-nav">
-              <h6 class = "nav-link">${responseData.data.location}</h6>
-              <h6 class = "nav-link"><a href = "${responseData.data.url}" >GitHub</a></h6>
-              <h6 class = "nav-link"><a href = "${responseData.data.blog}" >Portfolio</a></h6>
+          <div class = "wrapper">
+            <!--Header with photo-->
+            <div class = "photo-header">
+              <img class = "photo-header" src = ${responseData.data.avatar_url}>
+              <h1>${responseData.data.name}</h1>
+              <div class = "links-nav">
+                <h6 class = "nav-link">${responseData.data.location}</h6>
+                <h6 class = "nav-link"><a href = "${responseData.data.url}" >GitHub</a></h6>
+                <h6 class = "nav-link"><a href = "${responseData.data.blog}" >Portfolio</a></h6>
+              </div>
             </div>
+            <div class = "container">  
+            <h6 style = "text-align:center">${responseData.data.bio}</h6>
+            <div class = "row">
+              <div class = "col">
+                <div class = "card">
+                  <h1>Public Repositories</h1>
+                  <h5>${responseData.data.public_repos}</h5>
+                </div>
+              </div>
+              <div class = "col">
+                <div class = "card">
+                  <h1>Followers</h1>
+                  <h5>${responseData.data.followers}</h5>
+                </div>
+              </div>
+            </div>
+            <div class = "row">
+              <div class = "col">
+                <div class = "card">
+                  <h1>GitHub Stars</h1>
+                  <h5>${responseData.data.public_gists}</h5>
+                </div>
+              </div>
+              <div class = "col">
+                <div class = "card">
+                  <h1>Following</h1>
+                  <h5>${responseData.data.following}</h5>
+                </div>
+              </div>
+            </div>
+            </div> 
           </div>
-          <div class = "container">  
-          <h6>${responseData.data.bio}</h6>
-          <div class = "row">
-            <div class = "col">
-              <div class = "card">
-                <h1>Public Repositories</h1>
-                <h5>${responseData.data.public_repos}</h5>
-              </div>
-            </div>
-            <div class = "col">
-              <div class = "card">
-                <h1>Followers</h1>
-                <h5>${responseData.data.followers}</h5>
-              </div>
-            </div>
-          </div>
-          <div class = "row">
-            <div class = "col">
-              <div class = "card">
-                <h1>GitHub Stars</h1>
-                <h5>${responseData.data.public_gists}</h5>
-              </div>
-            </div>
-            <div class = "col">
-              <div class = "card">
-                <h1>Following</h1>
-                <h5>${responseData.data.following}</h5>
-              </div>
-            </div>
-          </div>
-          </div> 
         </main>
+
       </body>
       `
     }
@@ -230,6 +234,14 @@ let color;
 //let htmlFunction = HTMLgen.generateHTML(color, responseData);
 let newHTML;
 let user;
+let writeFunction =  function writeToFile(fileName, data) {
+  fs.writeFile(fileName,newHTML,function(err){
+    if (err){
+      console.log(err)
+    }
+    else console.log("File written!")
+  })
+}
 
 console.log("begin")
 
@@ -272,6 +284,7 @@ let inquireFunction = function(){
           responseData = response;
           newHTML = generateHTML(color,response)
           console.log(newHTML)
+          writeFunction("resume.html",newHTML)
           }
         )
     }    
@@ -286,12 +299,9 @@ let inquireFunction = function(){
 
 // then use provided generateHTML function to create page
 // then write new html to accessible file
-let writeFunction =  function writeToFile(fileName, data) {
-  
-}
 
 
-let init = async function(){
+let init = function(){
   inquireFunction()
 }
 
