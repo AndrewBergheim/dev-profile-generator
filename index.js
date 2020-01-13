@@ -200,7 +200,7 @@ let generateHTML = function(color, responseData, stars) {
             <img class = "photo-header" src = ${responseData.data.avatar_url}>
             <h1>${responseData.data.name}</h1>
             <div class = "links-nav">
-              <h6 class = "nav-link">${responseData.data.location}</h6>
+              <h6 class = "nav-link"><a href = "https://www.google.com/maps/place/${responseData.data.location}">${responseData.data.location}</a></h6>
               <h6 class = "nav-link"><a href = "${responseData.data.url}" >GitHub</a></h6>
               <h6 class = "nav-link"><a href = "${responseData.data.blog}" >Portfolio</a></h6>
             </div>
