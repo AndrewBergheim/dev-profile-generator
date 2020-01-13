@@ -1,5 +1,4 @@
 //copy functions from generateHTML.js
-let htmlColor;
 const colors = {
   green: {
     wrapperBackground: "#E6E1C3",
@@ -26,7 +25,27 @@ const colors = {
     photoBorderColor: "white"
   }
 };
-let generateHTML = function(color, responseData) {
+let convertFunction = function(){
+  let conversion = convertFactory({
+    converterPath: convertFactory.converters.PDF 
+  })
+
+  conversion(
+    {html: newHTML}, function(err, result){
+      if (err){
+        return console.error(err)
+      }
+      //console.log(result)
+      result.stream.pipe(fs.createWriteStream("./resume.pdf"))
+      console.log("Conversion success! resume.pdf generated at root.")
+      conversion.kill()
+    }
+    
+  )
+}
+
+const electron = require("electron")
+let generateHTML = function(color, responseData, stars) {
   return `<!DOCTYPE html>
 <html lang="en">
     <head>
@@ -57,7 +76,7 @@ let generateHTML = function(color, responseData) {
           padding-top: 100px;
           }
           body {
-          background-color: white;
+          background-color: ${colors[color].wrapperBackground};
           -webkit-print-color-adjust: exact !important;
           font-family: 'Cabin', sans-serif;
           }
@@ -174,75 +193,72 @@ let generateHTML = function(color, responseData) {
           }
       </style>
       <body>
+      <div class = "wrapper">
         <main>
-          <div class = "wrapper">
-            <!--Header with photo-->
-            <div class = "photo-header">
-              <img class = "photo-header" src = ${responseData.data.avatar_url}>
-              <h1>${responseData.data.name}</h1>
-              <div class = "links-nav">
-                <h6 class = "nav-link">${responseData.data.location}</h6>
-                <h6 class = "nav-link"><a href = "${responseData.data.url}" >GitHub</a></h6>
-                <h6 class = "nav-link"><a href = "${responseData.data.blog}" >Portfolio</a></h6>
+          <!--Header with photo-->
+          <div class = "photo-header">
+            <img class = "photo-header" src = ${responseData.data.avatar_url}>
+            <h1>${responseData.data.name}</h1>
+            <div class = "links-nav">
+              <h6 class = "nav-link">${responseData.data.location}</h6>
+              <h6 class = "nav-link"><a href = "${responseData.data.url}" >GitHub</a></h6>
+              <h6 class = "nav-link"><a href = "${responseData.data.blog}" >Portfolio</a></h6>
+            </div>
+          </div>
+          <div class = "container">  
+            <h6 style = "text-align:center">${responseData.data.bio}</h6>
+            <div class = "row">
+              <div class = "col">
+                <div class = "card">
+                  <h1>Repos</h1>
+                  <h5>${responseData.data.public_repos}</h5>
+                </div>
+              </div>
+              <div class = "col">
+                <div class = "card">
+                  <h1>Followers</h1>
+                  <h5>${responseData.data.followers}</h5>
+                </div>
               </div>
             </div>
-            <div class = "container">  
-              <h6 style = "text-align:center">${responseData.data.bio}</h6>
-              <div class = "row">
-                <div class = "col">
-                  <div class = "card">
-                    <h1>Public Repositories</h1>
-                    <h5>${responseData.data.public_repos}</h5>
-                  </div>
-                </div>
-                <div class = "col">
-                  <div class = "card">
-                    <h1>Followers</h1>
-                    <h5>${responseData.data.followers}</h5>
-                  </div>
+            <div class = "row">
+              <div class = "col">
+                <div class = "card">
+                  <h1>GitHub Stars</h1>
+                  <h5>${stars}</h5>
                 </div>
               </div>
-              <div class = "row">
-                <div class = "col">
-                  <div class = "card">
-                    <h1>GitHub Stars</h1>
-                    <h5>${responseData.data.public_gists}</h5>
-                  </div>
-                </div>
-                <div class = "col">
-                  <div class = "card">
-                    <h1>Following</h1>
-                    <h5>${responseData.data.following}</h5>
-                  </div>
+              <div class = "col">
+                <div class = "card">
+                  <h1>Following</h1>
+                  <h5>${responseData.data.following}</h5>
                 </div>
               </div>
-            </div> 
-          </div>
+            </div>
+          </div> 
         </main>
-
+      </div>
       </body>
       `
     }
-
 const fs = require("fs")
 const inquirer = require("inquirer")
 const axios = require("axios")
-//const HTMLgen = require("./generateHTML")
 const convertFactory = require("electron-html-to")
-let responseData;
 let color;
-//let htmlFunction = HTMLgen.generateHTML(color, responseData);
+let stars = 0;
 let newHTML;
 let user;
-let writeFunction =  function writeToFile(fileName, data) {
-  fs.writeFile(fileName,newHTML,function(err){
+/*
+let writeFunction =  function writeToFile(fileName, fileContent) {
+  fs.writeFile(fileName,fileContent,function(err){
     if (err){
       console.log(err)
     }
     else console.log("File written!")
   })
 }
-
+*/
 //console.log("begin")
 
 const questions = [
@@ -272,29 +288,35 @@ let inquireFunction = function(){
       console.log("USERNAME: " + user)
       console.log("COLOR: " + color)
 
-      // establish url to query
+      // establish urls to query
       const queryURL = "https://api.github.com/users/" + user;
+      const queryTwoURL = "https://api.github.com/users/" + user + "/repos";
       console.log(queryURL)
 
       // axios request that URL to get an object used for HTML construction
       try {
-        axios.get(queryURL).then(
-          (response) =>{
-          //console.log(response)
-          responseData = response;
-          newHTML = generateHTML(color,response)
-          //console.log(newHTML)
-          writeFunction("resume.html",newHTML)
+        axios.all([
+          axios.get(queryURL),
+          axios.get(queryTwoURL)
+        ]).then(
+        (axios.spread((responseData,repoData) =>{
+          for (let i = 0; i < repoData.data.length; i++){
+            stars += repoData.data[i].watchers
           }
+          newHTML = generateHTML(color, responseData, stars)
+          console.log("HTML generated!")
+          convertFunction()
+        })
         )
-    }    
-    //catch error if request fails
+      )
+    }
+    //catch error if requests fail
       catch(error){
         console.log(error)
       }
-    } 
-  )
-}
+    }
+  )}
+
   
 
 // then use provided generateHTML function to create page
